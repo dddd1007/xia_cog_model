@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="xia_cognitive_control_models",
+    name="xia_cog_models",
     version="0.1",
     packages=find_packages(),
-    url="https://github.com/dddd1007/xia_cognitive_control_models",
+    url="https://github.com/dddd1007/xia_cog_models",
     author="Xia Xiaokai",
     author_email="xia@xiaokai.me",
     description="My workflow of cognitive control models.",

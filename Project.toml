@@ -1,4 +1,4 @@
-name = "cognitive_control_model"
+name = "xia_cog_models"
 uuid = "527e695c-b180-4957-9572-36edb5eaaa68"
 authors = ["Xiaokai Xia <xia@xiaokai.me>"]
 version = "0.1.0"
