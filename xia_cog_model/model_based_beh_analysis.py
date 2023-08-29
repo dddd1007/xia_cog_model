@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 
 def overlap_plot(raw_data, sub_num, assign_name, ax=None):
-    single_sub_data = raw_data[raw_data["sub_num"] == sub_num]
+    single_sub_data = raw_data[raw_data["sub_num"] == sub_num].reset_index()
 
     # 提取实验设计
     exp_design = single_sub_data["prop"].values
