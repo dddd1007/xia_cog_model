@@ -51,11 +51,9 @@ def model_overlap_plot(raw_data, sub_num, assign_name, ax=None):
             key = "Reinforcement Learning"
 
         # 绘制 exp_design 的线，增加 linewidth 参数使线条更粗
-        ax[i].plot(
-            exp_design, color="darkblue", linewidth=2.0, label="exp_design"
-        )
+        ax.plot(exp_design, color="darkblue", linewidth=2.0, label="exp_design")
         # 绘制 model_estimate 的线，增加 linewidth 参数使线条更粗
-        ax[i].plot(
+        ax.plot(
             abs(1 - value),
             color=colors[i],
             alpha=0.75,
@@ -63,36 +61,10 @@ def model_overlap_plot(raw_data, sub_num, assign_name, ax=None):
             label=key,
         )
         # 设置子图的 title
-        ax[i].set_title(key)
+        ax.set_title(key)
         # 设置子图的纵轴范围
-        ax[i].set_ylim([0, 1])
+        ax.set_ylim([0, 1])
 
     # 如果 ax 参数为 None，显示图像
     if ax is None:
         plt.show()
-
-
-def compair_volatility_param(raw_data, i, group_by, dep_var, title, ax=None):
-    single_sub_data = raw_data[raw_data["sub_num"] == i].reset_index(drop=True)
-
-    # 创建一个新的 DataFrame 来存储 x_var 和 y_var 的值
-    df = pd.DataFrame(columns=[group_by, dep_var])
-
-    # 根据 x_var 变量对 y_var 进行分组
-    grouped_data = single_sub_data.groupby(group_by)[dep_var].apply(list)
-    grouped_index = single_sub_data.groupby(group_by).groups
-
-    # 遍历每个 x_var 分组
-    data = []
-    for x_value, y_list in zip(grouped_index.keys(), grouped_data):
-        # 对于每个 x_var 分组，将 y_var 值添加到新的 DataFrame 中
-        for y_value in y_list:
-            data.append({group_by: x_value, dep_var: y_value})
-
-    df = pd.DataFrame(data)
-
-    # 使用新的 DataFrame 绘制箱线图
-    sns.boxplot(x=group_by, y=dep_var, data=df, ax=ax)
-    ax.set_title(title)
-    ax.set_xlabel(group_by)
-    ax.set_ylabel(dep_var)
