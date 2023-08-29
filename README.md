@@ -1,2 +1,1 @@
-# xia_cognitive_control_models
-xia_cognitive_control_models
+# The cognitive models I used
