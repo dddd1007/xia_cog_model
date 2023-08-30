@@ -4,7 +4,7 @@ import seaborn as sns
 import numpy as np
 
 
-def model_overlap_plot_multi_sub_corr(
+def model_overlap_plot(
     raw_data,
     sub_nums,
     assign_name,
