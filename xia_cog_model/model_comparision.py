@@ -123,7 +123,7 @@ def reshape_fit_metrics_df(fit_metrics_df):
     return mean_stats_pivot_df
 
 
-def calculate_exceedance_probability(bic_values):
+def calculate_exceedance_probability(fit_metrics_df):
     """
     Calculate the exceedance probability based on BIC values.
     Exceedance probability is calculated as exp(-0.5 * BIC) normalized by the sum for all models.
@@ -134,17 +134,17 @@ def calculate_exceedance_probability(bic_values):
     Returns:
     - exceedance_prob (array-like): The exceedance probabilities for all models
     """
+    # Extract BIC values from the fit_metrics DataFrame for each model
+    bic_values_by_model = fit_metrics_df.filter(like="BIC").mean()
+
     # Calculate the unnormalized exceedance probability
-    unnormalized_prob = np.exp(-0.5 * np.array(bic_values))
+    unnormalized_prob = np.exp(-0.5 * np.array(bic_values_by_model))
 
     # Normalize the exceedance probabilities so they sum to 1
     exceedance_prob = unnormalized_prob / np.sum(unnormalized_prob)
 
     return exceedance_prob
 
-
-# Extract BIC values from the fit_metrics DataFrame for each model
-bic_values_by_model = fit_metrics_df_v2.filter(like="BIC").mean()
 
 # Calculate exceedance probabilities
 exceedance_probabilities = calculate_exceedance_probability(bic_values_by_model)
