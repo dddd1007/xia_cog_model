@@ -108,7 +108,7 @@ def model_overlap_plot(
             )
 
     # Save the figure to the specified path if given
-    if save_path:
+    if save_path is not None:
         plt.savefig(save_path)
 
     if show_plot:
@@ -122,6 +122,8 @@ def plot_bl_v_boxplot(
     volatility_colname="volatile",
     bl_v_colname="bl_sr_v",
     colors=["#e87e72", "#56bcc2"],
+    save_path=None,
+    fig_size=(10, 6),
     print_ttest=True,
 ):
     # Convert volatility values to lowercase for consistency
@@ -161,7 +163,10 @@ def plot_bl_v_boxplot(
             f"T-test results between 's' and 'v' conditions: t-statistic = {t_stat:.2f}, p-value = {p_value:.2e}"
         )
 
-    plt.show()
+    if save_path is not None:
+        fig = plt.gcf()
+        fig.set_size_inches(fig_size[0], fig_size[1])
+        plt.savefig(save_path, dpi=300)
 
 
 # Re-plot the boxplot for RL model's alpha with all subjects included
@@ -170,6 +175,8 @@ def plot_rl_alpha_boxplot(
     subject_colname="sub_num",
     alpha_colnames=["alpha_s", "alpha_v"],
     colors=["#e87e72", "#56bcc2"],
+    save_path=None,
+    fig_size=(10, 6),
 ):
     # Check if the required columns exist in the dataframe
     for col in [subject_colname] + alpha_colnames:
@@ -180,7 +187,8 @@ def plot_rl_alpha_boxplot(
     # Check for missing values
     if alpha_table.isnull().any().any():
         print(
-            "Warning: The dataframe contains missing values. Please handle them before proceeding."
+            "Warning: The dataframe contains missing values."
+            "Please handle them before proceeding."
         )
         return
 
@@ -200,9 +208,7 @@ def plot_rl_alpha_boxplot(
     sns.boxplot(x="volatile", y="alpha", data=melted_data, palette=colors)
 
     # Additional plot settings
-    plt.title(
-        "Boxplot of RL Alpha under Different Volatility Conditions for All Subjects"
-    )
+    plt.title("Boxplot of RL Alpha")
     plt.xlabel("Volatility Condition")
     plt.ylabel("Alpha Value")
 
@@ -215,4 +221,7 @@ def plot_rl_alpha_boxplot(
         f"T-test results between 's' and 'v' conditions: t-statistic = {t_stat:.2f}, p-value = {p_value:.2e}"
     )
 
-    plt.show()
+    if save_path is not None:
+        fig = plt.gcf()
+        fig.set_size_inches(fig_size[0], fig_size[1])
+        plt.savefig(save_path, dpi=300)
