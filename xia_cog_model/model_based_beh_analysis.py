@@ -11,6 +11,7 @@ def model_overlap_plot(
     save_path=None,
     aspect_ratio=1.5,
     print_corr=True,
+    show_plot=False,
 ):
     num_subs = len(sub_nums)  # Number of subjects
     num_models = len(assign_name)  # Number of models
@@ -62,9 +63,7 @@ def model_overlap_plot(
                 else key
             )
 
-            ax.plot(
-                exp_design, color="darkblue", linewidth=2.0, label="exp_design"
-            )
+            ax.plot(exp_design, color="darkblue", linewidth=2.0, label="exp_design")
             ax.plot(
                 abs(1 - value),
                 color=colors[j],
@@ -76,26 +75,44 @@ def model_overlap_plot(
             ax.set_title(f"Sub {sub_num}: {label}")
             ax.set_ylim([0, 1])
 
-            if print_corr:
-                # Check for NaN values and raise an exception if found
-                if np.isnan(exp_design).any() or np.isnan(abs(1 - value)).any():
-                    raise ValueError(
-                        "Data contains NaN values, cannot calculate Pearson correlation."
-                    )
-
-                # Calculate and print correlation and significance
-                corr, p_value = pearsonr(exp_design, abs(1 - value))
-                print(
-                    f"Correlation between exp_design and {label} for Sub {sub_num}: Pearson r = {corr:.2f}, p-value = {p_value:.2e}"
-                )
-
     plt.tight_layout()
+
+    if print_corr:
+        all_exp_design = raw_data["prop"].values
+        if "MI" in all_exp_design:
+            all_exp_design = [0.20 if x == "MI" else x for x in all_exp_design]
+            all_exp_design = [0.80 if x == "MC" else x for x in all_exp_design]
+        all_exp_design = [float(x) for x in all_exp_design]
+        # Check for NaN values and raise an exception if found
+        if np.isnan(exp_design).any() or np.isnan(abs(1 - value)).any():
+            raise ValueError(
+                "Data contains NaN values, cannot calculate Pearson correlation."
+            )
+
+        for i in assign_name:
+            # Calculate and print correlation and significance
+            # 从 raw_data 中提取对应的所有 subject_num 的 value
+
+            model_data = raw_data[i].mean(axis=1)
+            value = np.array(model_data)
+
+            if "bl" in i[0]:
+                corr_label = "Bayesian Learning"
+            elif "rl" in i[0]:
+                corr_label = "Reinforcement Learning"
+
+            # 计算 exp_design 和 values 的相关性
+            corr, p_value = pearsonr(all_exp_design, abs(1 - value))
+            print(
+                f"Correlation between exp_design and {corr_label}: Pearson r = {corr:.2f}, p-value = {p_value:.2e}"
+            )
 
     # Save the figure to the specified path if given
     if save_path:
         plt.savefig(save_path)
 
-    plt.show()
+    if show_plot:
+        plt.show()
 
 
 # Update the function to include t-test for differences between volatility conditions
@@ -127,9 +144,7 @@ def plot_bl_v_boxplot(
 
     # Create the boxplot using seaborn
     plt.figure(figsize=(10, 6))
-    sns.boxplot(
-        x=volatility_colname, y=bl_v_colname, data=grouped_data, palette=colors
-    )
+    sns.boxplot(x=volatility_colname, y=bl_v_colname, data=grouped_data, palette=colors)
 
     # Additional plot settings
     plt.title("Bayesian Learning")

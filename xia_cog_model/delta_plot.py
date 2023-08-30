@@ -5,9 +5,7 @@ def calc_simon_effect(data, n_bins, congruency_col, inc_value, factors):
     # 获取 congruency_col 中不是 inc_value 的另一个值，如果有多于两个值则报错
     congruency_values = data[congruency_col].unique()
     if len(congruency_values) != 2:
-        raise ValueError(
-            "Congruency column must contain exactly two unique values."
-        )
+        raise ValueError("Congruency column must contain exactly two unique values.")
     con_value = [v for v in congruency_values if v != inc_value][0]
 
     # 对每个被试的数据先按照 factors 和 congruency_col 进行分组
