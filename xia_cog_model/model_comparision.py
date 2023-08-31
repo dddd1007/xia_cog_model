@@ -14,6 +14,20 @@ def calculate_linear_model_fits(
     indep_var=["stim_loc_num", "resp_num", "volatility_num"],  # 独立变量
     interception_col="run_num",  # 截距列
 ):
+    """
+    计算线性模型的拟合度。
+
+    参数：
+        - raw_data: 原始数据
+        - pe_columns: PE 列
+        - sub_col: 子列
+        - dep_var: 依赖变量
+        - indep_var: 独立变量
+        - interception_col: 截距列
+
+    返回：
+        - fit_metrics_df: 包含拟合度指标的 DataFrame
+    """
     # 创建一个副本以避免 SettingWithCopyWarning
     filtered_data = raw_data.dropna().copy()
     df_list = []
@@ -55,7 +69,17 @@ def calculate_linear_model_fits(
 
 
 # 定义函数 calculate_additional_fit_metrics，用于计算额外的拟合度指标
-def calculate_additional_fit_metrics(model, pe_col):
+def calculate_additional_fit_metrics(model):
+    """
+    计算额外的拟合度指标。
+
+    参数：
+        - model: 拟合的模型
+        - pe_col: PE 列
+
+    返回：
+        - 一个包含所有拟合度指标的字典
+    """
     rsquared = model.rsquared
     adj_rsquared = model.rsquared_adj
     rmse = np.sqrt(model.mse_resid)
@@ -82,6 +106,15 @@ def calculate_additional_fit_metrics(model, pe_col):
 
 # 定义函数 summary_model_comparison，用于对模型进行比较
 def summary_model_comparison(fit_metrics_df):
+    """
+    对模型进行比较。
+
+    参数：
+        - fit_metrics_df: 包含拟合度指标的 DataFrame
+
+    返回：
+        - mean_stats_pivot_df: 包含每种模型类型的平均统计量的 DataFrame
+    """
     # 计算每种模型类型的平均统计量
     mean_stats_pivot_df = fit_metrics_df.groupby("model_type").mean()
     return mean_stats_pivot_df
