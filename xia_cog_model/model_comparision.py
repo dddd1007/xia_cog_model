@@ -13,20 +13,21 @@ def calculate_linear_model_fits(
     dep_var=["rt"],  # 依赖变量
     indep_var=["stim_loc_num", "resp_num", "volatility_num"],  # 独立变量
     interception_col="run_num",  # 截距列
+    debug=False,  # 是否打印调试信息
 ):
     """
-    计算线性模型的拟合度。
+    Calculate the fit of the linear model.
 
-    参数：
-        - raw_data: 原始数据
-        - pe_columns: PE 列
-        - sub_col: 子列
-        - dep_var: 依赖变量
-        - indep_var: 独立变量
-        - interception_col: 截距列
+    Parameters:
+        - raw_data: Original data
+        - pe_columns: PE columns
+        - sub_col: Sub-column
+        - dep_var: Dependent variable
+        - indep_var: Independent variable
+        - interception_col: Interception column
 
-    返回：
-        - fit_metrics_df: 包含拟合度指标的 DataFrame
+    Returns:
+        - fit_metrics_df: DataFrame containing fit metrics
     """
     # 创建一个副本以避免 SettingWithCopyWarning
     filtered_data = raw_data.dropna().copy()
@@ -37,7 +38,9 @@ def calculate_linear_model_fits(
     # 对每个子列进行操作
     for sub_num in sorted(filtered_data[sub_col].unique()):
         sub_data = filtered_data[filtered_data[sub_col] == sub_num].copy()
-        sub_data.loc[:, interception_col] = sub_data[interception_col].astype(str)
+        sub_data.loc[:, interception_col] = sub_data[interception_col].astype(
+            str
+        )
         # 创建虚拟变量
         run_dummies = pd.get_dummies(
             sub_data[interception_col], prefix="inter_"
@@ -54,9 +57,15 @@ def calculate_linear_model_fits(
             )
             y = sub_data[dep_var].copy()
             # 拟合模型
+            if debug:
+                print(f"=== 正在处理的子列：{sub_num}, PE 列：{pe_col} ===")
+                print("X 的前五行数据：")
+                print(X.head())
+                print("y 的数据：")
+                print(y)
             model = sm.OLS(y, X).fit()
             # 计算额外的拟合度指标
-            fit_metrics_sub = calculate_additional_fit_metrics(model, pe_col)
+            fit_metrics_sub = calculate_additional_fit_metrics(model)
             fit_metrics_sub["sub_num"] = sub_num
             fit_metrics_sub["model_type"] = pe_col
             fit_metrics_sub_df = pd.DataFrame([fit_metrics_sub])
