@@ -34,13 +34,11 @@ def calculate_linear_model_fits(
     df_list = []
     # 将所有需要的列都转换为浮点数类型
     for col in pe_columns + indep_var + dep_var:
-        filtered_data.loc[:, col] = filtered_data[col].astype("float64")
+        filtered_data[col] = filtered_data[col].astype("float64")
     # 对每个子列进行操作
     for sub_num in sorted(filtered_data[sub_col].unique()):
         sub_data = filtered_data[filtered_data[sub_col] == sub_num].copy()
-        sub_data.loc[:, interception_col] = sub_data[interception_col].astype(
-            str
-        )
+        sub_data.loc[:, interception_col] = sub_data[interception_col].astype(str)
         # 创建虚拟变量
         run_dummies = pd.get_dummies(
             sub_data[interception_col], prefix="inter_"
