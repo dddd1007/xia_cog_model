@@ -127,15 +127,12 @@ def model_overlap_plot(
                 {"model": [corr_label], "correlation": [corr], "p_value": [p_value]}
             )
 
-            # Save the DataFrame to a csv file
-            if save_path is not None:
-                corr_results.to_csv(
-                    os.path.join(save_path, "correlation_results.csv"), index=False
-                )
-
     # Save the figure to the specified path if given
     if save_path is not None:
-        plt.savefig(save_path)
+        corr_results.to_csv(
+            os.path.join(save_path, "correlation_results.csv"), index=False
+        )
+        plt.savefig(os.path.join(save_path, "model_overlap_plot.png"))
 
     if show_plot:
         plt.show()
@@ -186,18 +183,15 @@ def plot_bl_v_boxplot(
     # Save t-test results to a DataFrame
     ttest_results = pd.DataFrame({"t_statistic": [t_stat], "p_value": [p_value]})
 
-    # Save the DataFrame to a csv file
-    if save_path is not None:
-        ttest_results.to_csv(
-            os.path.join(save_path, "bl_ttest_results.csv"), index=False
-        )
-
     if print_ttest:
         print(
             f"T-test results between 's' and 'v' conditions: t-statistic = {t_stat:.2f}, p-value = {p_value:.2e}"
         )
 
     if save_path is not None:
+        ttest_results.to_csv(
+            os.path.join(save_path, "bl_ttest_results.csv"), index=False
+        )
         fig = plt.gcf()
         fig.set_size_inches(fig_size[0], fig_size[1])
         plt.savefig(save_path, dpi=300)
@@ -253,17 +247,15 @@ def plot_rl_alpha_boxplot(
     # Save t-test results to a DataFrame
     ttest_results = pd.DataFrame({"t_statistic": [t_stat], "p_value": [p_value]})
 
-    # Save the DataFrame to a csv file
-    if save_path is not None:
-        ttest_results.to_csv(
-            os.path.join(save_path, "rl_ttest_results.csv"), index=False
-        )
-
     print(
         f"T-test results between 's' and 'v' conditions: t-statistic = {t_stat:.2f}, p-value = {p_value:.2e}"
     )
 
     if save_path is not None:
+        ttest_results.to_csv(
+            os.path.join(save_path, "rl_ttest_results.csv"), index=False
+        )
+
         fig = plt.gcf()
         fig.set_size_inches(fig_size[0], fig_size[1])
         plt.savefig(save_path, dpi=300)
