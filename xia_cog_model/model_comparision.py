@@ -80,7 +80,7 @@ def calculate_linear_model_fits(
     for col in pe_columns:
         filtered_data[col] = filtered_data[col].astype("float64")
     for col in indep_var:
-        filtered_data[col] = filtered_data[col].astype("category")
+        filtered_data[col] = filtered_data[col].astype("int")
     # 对每个子列进行操作
     for sub_num in sorted(filtered_data[sub_col[0]].unique()):
         sub_data = filtered_data[filtered_data[sub_col[0]] == sub_num].copy()
@@ -88,7 +88,7 @@ def calculate_linear_model_fits(
         # 创建虚拟变量
         run_dummies = pd.get_dummies(
             sub_data[interception_col[0]], prefix="inter_"
-        ).astype("category")
+        ).astype("int")
 
         # 对每个 PE 列进行操作
         for pe_col in pe_columns:
