@@ -56,6 +56,17 @@ def calculate_linear_model_fits(
                 axis=1,
             )
             y = sub_data[dep_var].copy()
+
+            # 检查观察值的数量是否大于模型中的参数数量
+            if X.shape[0] <= X.shape[1]:
+                print("警告：观察值的数量小于或等于模型中的参数数量。")
+                continue
+
+            # 检查是否存在完全共线的情况
+            if np.linalg.matrix_rank(X) < X.shape[1]:
+                print("警告：存在完全共线的情况。")
+                continue
+
             # 拟合模型
             if debug:
                 print(f"=== 正在处理的子列：{sub_num}, PE 列：{pe_col} ===")
