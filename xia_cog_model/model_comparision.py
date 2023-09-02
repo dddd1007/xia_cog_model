@@ -107,12 +107,6 @@ def calculate_linear_model_fits(
                 X.to_csv(f"/error_report/sub_{sub_num}.csv")
                 print("The error file have saved to" + getcwd())
 
-            # 检查是否存在完全共线的情况
-            if np.linalg.matrix_rank(X) < X.shape[1]:
-                print(f"警告：存在完全共线的情况。被试编号：{sub_num}")
-                X.to_csv(f"/error_report/sub_{sub_num}.csv")
-                print("The error file have saved to" + getcwd())
-
             # 拟合模型
             if debug:
                 print(f"=== 正在处理的子列：{sub_num}, PE 列：{pe_col} ===")
