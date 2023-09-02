@@ -15,8 +15,8 @@ def model_overlap_plot(
     negative=False,
     print_corr=True,
     show_plot=False,
-    title_fontsize=20,  # New parameter for title fontsize
-    label_fontsize=15,  # New parameter for label fontsize
+    title_fontsize=20,
+    tick_fontsize=15,
 ):
     num_subs = len(sub_nums)  # Number of subjects
     num_models = len(assign_name)  # Number of models
@@ -86,9 +86,8 @@ def model_overlap_plot(
 
             ax.set_title(
                 f"Sub {sub_num}: {label}", fontsize=title_fontsize
-            )  # Set title fontsize
-            ax.set_xlabel("X Label", fontsize=label_fontsize)  # Set x label fontsize
-            ax.set_ylabel("Y Label", fontsize=label_fontsize)  # Set y label fontsize
+            )  # Set y label fontsize
+            ax.tick_params(axis="both", which="major", labelsize=tick_fontsize)
             ax.set_ylim([0, 1])
 
     plt.tight_layout()
