@@ -33,8 +33,10 @@ def calculate_linear_model_fits(
     filtered_data = raw_data.dropna().copy()
     df_list = []
     # 将所有需要的列都转换为浮点数类型
-    for col in pe_columns + indep_var + dep_var:
+    for col in pe_columns + dep_var:
         filtered_data[col] = filtered_data[col].astype("float64")
+    for col in indep_var:
+        filtered_data[col] = filtered_data[col].astype("category")
     # 对每个子列进行操作
     for sub_num in sorted(filtered_data[sub_col].unique()):
         sub_data = filtered_data[filtered_data[sub_col] == sub_num].copy()
