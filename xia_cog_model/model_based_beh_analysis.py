@@ -21,6 +21,10 @@ def model_overlap_plot(
     num_subs = len(sub_nums)  # Number of subjects
     num_models = len(assign_name)  # Number of models
 
+    if save_path is not None:
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+
     def value_data(value, negative=bool(negative)):
         return abs(1 - value) if negative else value
 
