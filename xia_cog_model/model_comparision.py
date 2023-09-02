@@ -1,4 +1,5 @@
 # 导入所需的库
+from os import getcwd
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
@@ -9,7 +10,7 @@ from scipy.special import logsumexp
 def calculate_linear_model_fits(
     raw_data,  # 原始数据
     pe_columns=["bl_sr_pe", "bl_ab_pe", "rl_sr_v_pe", "rl_ab_v_pe"],  # PE 列
-    sub_col="sub_num",  # 子列
+    sub_col=["sub_num"],  # 子列
     dep_var=["rt"],  # 依赖变量
     indep_var=["stim_loc_num", "resp_num", "volatility_num"],  # 独立变量
     interception_col="run_num",  # 截距列
@@ -30,6 +31,7 @@ def calculate_linear_model_fits(
         - fit_metrics_df: DataFrame containing fit metrics
     """
     # 创建一个副本以避免 SettingWithCopyWarning
+    raw_data = raw_data[pe_columns + sub_col + dep_var + indep_var]
     filtered_data = raw_data.dropna().copy()
     df_list = []
     # 将所有需要的列都转换为浮点数类型
@@ -38,8 +40,8 @@ def calculate_linear_model_fits(
     for col in indep_var:
         filtered_data[col] = filtered_data[col].astype("category")
     # 对每个子列进行操作
-    for sub_num in sorted(filtered_data[sub_col].unique()):
-        sub_data = filtered_data[filtered_data[sub_col] == sub_num].copy()
+    for sub_num in sorted(filtered_data[sub_col[0]].unique()):
+        sub_data = filtered_data[filtered_data[sub_col[0]] == sub_num].copy()
         sub_data.loc[:, interception_col] = sub_data[interception_col].astype(str)
         # 创建虚拟变量
         run_dummies = pd.get_dummies(
@@ -59,12 +61,16 @@ def calculate_linear_model_fits(
 
             # 检查观察值的数量是否大于模型中的参数数量
             if X.shape[0] <= X.shape[1]:
-                print("警告：观察值的数量小于或等于模型中的参数数量。")
+                print(f"警告：观察值的数量小于或等于模型中的参数数量。被试编号：{sub_num}")
+                X.to_csv(f"X_{sub_num}.csv")
+                print("The error file have saved to" + getcwd())
                 continue
 
             # 检查是否存在完全共线的情况
             if np.linalg.matrix_rank(X) < X.shape[1]:
-                print("警告：存在完全共线的情况。")
+                print("警告：存在完全共线的情况。被试编号：{sub_num}")
+                X.to_csv(f"X_{sub_num}.csv")
+                print("The error file have saved to" + getcwd())
                 continue
 
             # 拟合模型
