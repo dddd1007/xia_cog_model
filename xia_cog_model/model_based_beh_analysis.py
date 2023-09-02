@@ -75,12 +75,12 @@ def model_overlap_plot(
                 else key
             )
 
-            ax.plot(exp_design, color="darkblue", linewidth=2.0, label="exp_design")
+            ax.plot(exp_design, color="darkblue", linewidth=3.0, label="exp_design")
             ax.plot(
                 value_data(value, negative),
                 color=colors[j],
                 alpha=0.75,
-                linewidth=2.0,
+                linewidth=3.0,
                 label=label,
             )
 
