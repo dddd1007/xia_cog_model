@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import os
+import pandas as pd
 from scipy.stats import ttest_ind, pearsonr
 import seaborn as sns
 import numpy as np
@@ -13,6 +15,8 @@ def model_overlap_plot(
     negative=False,
     print_corr=True,
     show_plot=False,
+    title_fontsize=20,  # New parameter for title fontsize
+    label_fontsize=15,  # New parameter for label fontsize
 ):
     num_subs = len(sub_nums)  # Number of subjects
     num_models = len(assign_name)  # Number of models
@@ -76,7 +80,11 @@ def model_overlap_plot(
                 label=label,
             )
 
-            ax.set_title(f"Sub {sub_num}: {label}")
+            ax.set_title(
+                f"Sub {sub_num}: {label}", fontsize=title_fontsize
+            )  # Set title fontsize
+            ax.set_xlabel("X Label", fontsize=label_fontsize)  # Set x label fontsize
+            ax.set_ylabel("Y Label", fontsize=label_fontsize)  # Set y label fontsize
             ax.set_ylim([0, 1])
 
     plt.tight_layout()
@@ -110,6 +118,16 @@ def model_overlap_plot(
             print(
                 f"Correlation between exp_design and {corr_label}: Pearson r = {corr:.2f}, p-value = {p_value:.2e}"
             )
+            # Save the Pearson correlation results to a DataFrame
+            corr_results = pd.DataFrame(
+                {"model": [corr_label], "correlation": [corr], "p_value": [p_value]}
+            )
+
+            # Save the DataFrame to a csv file
+            if save_path is not None:
+                corr_results.to_csv(
+                    os.path.join(save_path, "correlation_results.csv"), index=False
+                )
 
     # Save the figure to the specified path if given
     if save_path is not None:
@@ -161,6 +179,14 @@ def plot_bl_v_boxplot(
     s_data = grouped_data[grouped_data[volatility_colname] == "s"][bl_v_colname]
     v_data = grouped_data[grouped_data[volatility_colname] == "v"][bl_v_colname]
     t_stat, p_value = ttest_ind(s_data, v_data)
+    # Save t-test results to a DataFrame
+    ttest_results = pd.DataFrame({"t_statistic": [t_stat], "p_value": [p_value]})
+
+    # Save the DataFrame to a csv file
+    if save_path is not None:
+        ttest_results.to_csv(
+            os.path.join(save_path, "bl_ttest_results.csv"), index=False
+        )
 
     if print_ttest:
         print(
@@ -220,6 +246,14 @@ def plot_rl_alpha_boxplot(
     s_data = alpha_table[next(col for col in alpha_colnames if "s" in col)]
     v_data = alpha_table[next(col for col in alpha_colnames if "v" in col)]
     t_stat, p_value = ttest_ind(s_data, v_data)
+    # Save t-test results to a DataFrame
+    ttest_results = pd.DataFrame({"t_statistic": [t_stat], "p_value": [p_value]})
+
+    # Save the DataFrame to a csv file
+    if save_path is not None:
+        ttest_results.to_csv(
+            os.path.join(save_path, "rl_ttest_results.csv"), index=False
+        )
 
     print(
         f"T-test results between 's' and 'v' conditions: t-statistic = {t_stat:.2f}, p-value = {p_value:.2e}"
