@@ -8,30 +8,36 @@ from scipy.special import logsumexp
 
 # 定义函数 calculate_linear_model_fits，用于计算线性模型的拟合度
 def calculate_linear_model_fits(
-    raw_data,  # 原始数据
-    pe_columns=["bl_sr_pe", "bl_ab_pe", "rl_sr_v_pe", "rl_ab_v_pe"],  # PE 列
-    sub_col=["sub_num"],  # 子列
-    dep_var=["rt"],  # 依赖变量
-    indep_var=["stim_loc_num", "resp_num", "volatility_num"],  # 独立变量
-    interception_col="run_num",  # 截距列
-    debug=False,  # 是否打印调试信息
+    raw_data: pd.DataFrame,  # 原始数据
+    pe_columns: List[str] = [
+        "bl_sr_pe",
+        "bl_ab_pe",
+        "rl_sr_v_pe",
+        "rl_ab_v_pe",
+    ],  # PE 列
+    sub_col: List[str] = ["sub_num"],  # 子列
+    dep_var: List[str] = ["rt"],  # 依赖变量
+    indep_var: List[str] = ["stim_loc_num", "resp_num", "volatility_num"],  # 独立变量
+    interception_col: List[str] = ["run_num"],  # 截距列
+    debug: bool = False,  # 是否打印调试信息
 ):
     """
-    Calculate the fit of the linear model.
+    计算线性模型的拟合度。
 
-    Parameters:
-        - raw_data: Original data
-        - pe_columns: PE columns
-        - sub_col: Sub-column
-        - dep_var: Dependent variable
-        - indep_var: Independent variable
-        - interception_col: Interception column
+    参数：
+        - raw_data: 原始数据，类型为 DataFrame
+        - pe_columns: PE 列，类型为字符串列表
+        - sub_col: 子列，类型为字符串列表
+        - dep_var: 依赖变量，类型为字符串列表
+        - indep_var: 独立变量，类型为字符串列表
+        - interception_col: 截距列，类型为字符串列表
+        - debug: 是否打印调试信息，类型为布尔值
 
-    Returns:
-        - fit_metrics_df: DataFrame containing fit metrics
+    返回：
+        - fit_metrics_df: 包含拟合度指标的 DataFrame
     """
     # 创建一个副本以避免 SettingWithCopyWarning
-    raw_data = raw_data[pe_columns + sub_col + dep_var + indep_var]
+    raw_data = raw_data[pe_columns + sub_col + dep_var + indep_var + interception_col]
     filtered_data = raw_data.dropna().copy()
     df_list = []
     # 将所有需要的列都转换为浮点数类型
@@ -42,10 +48,10 @@ def calculate_linear_model_fits(
     # 对每个子列进行操作
     for sub_num in sorted(filtered_data[sub_col[0]].unique()):
         sub_data = filtered_data[filtered_data[sub_col[0]] == sub_num].copy()
-        sub_data.loc[:, interception_col] = sub_data[interception_col].astype(str)
+        sub_data.loc[:, interception_col[0]] = sub_data[interception_col[0]].astype(str)
         # 创建虚拟变量
         run_dummies = pd.get_dummies(
-            sub_data[interception_col], prefix="inter_"
+            sub_data[interception_col[0]], prefix="inter_"
         ).astype(int)
 
         # 对每个 PE 列进行操作
