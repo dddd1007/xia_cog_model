@@ -10,11 +10,15 @@ def model_overlap_plot(
     assign_name,
     save_path=None,
     aspect_ratio=1.5,
+    negative=False,
     print_corr=True,
     show_plot=False,
 ):
     num_subs = len(sub_nums)  # Number of subjects
     num_models = len(assign_name)  # Number of models
+
+    def value_data(value, negative=bool(negative)):
+        return abs(1 - value) if negative else value
 
     # Calculate the new figure size based on the given aspect ratio
     new_fig_height = 5 * num_subs
@@ -65,7 +69,7 @@ def model_overlap_plot(
 
             ax.plot(exp_design, color="darkblue", linewidth=2.0, label="exp_design")
             ax.plot(
-                abs(1 - value),
+                value_data(value, negative),
                 color=colors[j],
                 alpha=0.75,
                 linewidth=2.0,
@@ -84,7 +88,7 @@ def model_overlap_plot(
             all_exp_design = [0.80 if x == "MC" else x for x in all_exp_design]
         all_exp_design = [float(x) for x in all_exp_design]
         # Check for NaN values and raise an exception if found
-        if np.isnan(exp_design).any() or np.isnan(abs(1 - value)).any():
+        if np.isnan(exp_design).any() or np.isnan(value_data(value, negative)).any():
             raise ValueError(
                 "Data contains NaN values, cannot calculate Pearson correlation."
             )
@@ -102,7 +106,7 @@ def model_overlap_plot(
                 corr_label = "Reinforcement Learning"
 
             # 计算 exp_design 和 values 的相关性
-            corr, p_value = pearsonr(all_exp_design, abs(1 - value))
+            corr, p_value = pearsonr(all_exp_design, value_data(value, negative))
             print(
                 f"Correlation between exp_design and {corr_label}: Pearson r = {corr:.2f}, p-value = {p_value:.2e}"
             )
