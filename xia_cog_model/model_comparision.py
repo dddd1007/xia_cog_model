@@ -1,5 +1,6 @@
 # 导入所需的库
 from os import getcwd
+import os
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
@@ -119,6 +120,8 @@ def calculate_linear_model_fits(
             fit_metrics_sub = calculate_additional_fit_metrics(model)
             fit_metrics_sub["sub_num"] = sub_num
             fit_metrics_sub["model_type"] = pe_col
+            fit_metrics_sub[f"beta_{pe_col}"] = model.params[pe_col]
+            fit_metrics_sub[f"pvalue_{pe_col}"] = model.pvalues[pe_col]
             fit_metrics_sub_df = pd.DataFrame([fit_metrics_sub])
             df_list.append(fit_metrics_sub_df)
 
@@ -201,3 +204,77 @@ def calculate_exceedance_probability_df(data, metrics):
     exceedance_prob_df.rename(columns={"index": "Metric"}, inplace=True)
 
     return exceedance_prob_df
+
+
+def summary_model_beta(model_selection_results, save_path, figure_size=(10, 5)):
+    """
+    This function extracts each beta of each model and performs descriptive statistics
+    from model_selection_results.
+
+    It also performs a one-sample t-test for each column and saves the
+    results to a csv file.
+
+    Finally, it plots a boxplot of the results.
+    """
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from scipy import stats
+    import numpy as np
+
+    beta_df = pd.DataFrame()
+    beta_columns = [
+        col for col in model_selection_results.columns if col.startswith("beta_")
+    ]
+    for col_name in beta_columns:
+        beta_df[col_name] = model_selection_results[col_name].dropna().abs().to_list()
+    beta_df["sub_num"] = model_selection_results["sub_num"].unique()
+
+    # Perform descriptive statistics
+    desc_stats = beta_df.describe()
+    desc_stats.to_csv(os.path.join(save_path, "beta_desc_stats.csv"))
+
+    # Perform one-sample t-test for each column and save the results to a csv file
+    t_test_results = {}
+    for col in beta_df.columns:
+        t_stat, p_val = stats.ttest_1samp(beta_df[col], 0)
+        t_test_results[col] = [t_stat, p_val]
+
+    t_test_df = pd.DataFrame.from_dict(
+        t_test_results, orient="index", columns=["T-statistic", "P-value"]
+    )
+    t_test_df.to_csv(os.path.join(save_path, "t_test_results.csv"))
+
+    colors = ["#e87e72", "#56bcc2"]  # Define colors for the boxplot
+    beta_df_melt = beta_df.drop(columns=["sub_num"]).melt(
+        var_name="columns"
+    )  # Melt the dataframe for seaborn boxplot, excluding "sub_num" column
+    beta_df_melt["Model"] = np.where(
+        beta_df_melt["columns"].str.contains("_rl_"), "rl", "bl"
+    )
+    # Plot the boxplot
+    plt.rcParams["font.sans-serif"] = ["Hiragino Sans GB"]  # Use SimHei font
+    plt.figure(figsize=figure_size)  # Set the aspect ratio to 2:1
+    sns.boxplot(x="columns", y="value", hue="Model", data=beta_df_melt, palette=colors)
+    plt.xticks(
+        fontsize=15
+    )  # Rotate x-axis labels for better visibility and increase font size
+    plt.yticks(fontsize=15)  # Increase y-axis font size
+    plt.xlabel("模型", fontsize=15)  # Increase x-axis label font size
+    plt.ylabel("beta 值", fontsize=15)  # Increase y-axis label font size
+    (
+        handles,
+        labels,
+    ) = plt.gca().get_legend_handles_labels()  # Get the current handles and labels
+    labels = [
+        "强化学习" if label == "rl" else "贝叶斯学习" for label in labels
+    ]  # Replace 'rl' with '强化学习' and 'bl' with '贝叶斯学习'
+    plt.legend(handles, labels, fontsize=15)  # Set the legend with the new labels
+    # Replace x-axis labels according to the instructions
+    x_labels = [label.get_text() for label in plt.gca().get_xticklabels()]
+    x_labels = ["RL SR" if "rl_sr" in label else label for label in x_labels]
+    x_labels = ["RL AB" if "rl_ab" in label else label for label in x_labels]
+    x_labels = ["BL SR" if "bl_sr" in label else label for label in x_labels]
+    x_labels = ["BL AB" if "bl_ab" in label else label for label in x_labels]
+    plt.gca().set_xticklabels(x_labels)
+    plt.savefig(os.path.join(save_path, "beta_boxplot.png"))  # Save the plot
+    plt.close()

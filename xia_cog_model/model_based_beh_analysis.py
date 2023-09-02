@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import os
 import pandas as pd
-from scipy.stats import ttest_ind, pearsonr
 import seaborn as sns
 import numpy as np
+import pingouin as pg
 
 
 def model_overlap_plot(
@@ -16,7 +16,7 @@ def model_overlap_plot(
     print_corr=True,
     show_plot=False,
     title_fontsize=20,
-    tick_fontsize=15,
+    tick_fontsize=20,
 ):
     num_subs = len(sub_nums)  # Number of subjects
     num_models = len(assign_name)  # Number of models
@@ -75,12 +75,12 @@ def model_overlap_plot(
                 else key
             )
 
-            ax.plot(exp_design, color="darkblue", linewidth=3.0, label="exp_design")
+            ax.plot(exp_design, color="darkblue", linewidth=5.0, label="exp_design")
             ax.plot(
                 value_data(value, negative),
                 color=colors[j],
                 alpha=0.75,
-                linewidth=3.0,
+                linewidth=5.0,
                 label=label,
             )
 
@@ -117,14 +117,13 @@ def model_overlap_plot(
                 corr_label = "Reinforcement Learning"
 
             # 计算 exp_design 和 values 的相关性
-            corr, p_value = pearsonr(all_exp_design, value_data(value, negative))
-            print(
-                f"Correlation between exp_design and {corr_label}: Pearson r = {corr:.2f}, p-value = {p_value:.2e}"
-            )
-            # Save the Pearson correlation results to a DataFrame
-            corr_results = pd.DataFrame(
-                {"model": [corr_label], "correlation": [corr], "p_value": [p_value]}
-            )
+            # 使用 pingouin 进行统计分析
+            # Convert the Series to a numpy array
+            value_array = value_data(value, negative)
+
+            # Calculate the correlation
+            corr_results = pg.corr(all_exp_design, value_array)
+            print(corr_results)
 
     # Save the figure to the specified path if given
     if save_path is not None:
@@ -132,7 +131,6 @@ def model_overlap_plot(
             os.path.join(save_path, "correlation_results.csv"), index=False
         )
         plt.savefig(os.path.join(save_path, "model_overlap_plot.png"))
-
     if show_plot:
         plt.show()
 
@@ -178,19 +176,20 @@ def plot_bl_v_boxplot(
     # Perform t-test between s and v conditions
     s_data = grouped_data[grouped_data[volatility_colname] == "s"][bl_v_colname]
     v_data = grouped_data[grouped_data[volatility_colname] == "v"][bl_v_colname]
-    t_stat, p_value = ttest_ind(s_data, v_data)
-    # Save t-test results to a DataFrame
-    ttest_results = pd.DataFrame({"t_statistic": [t_stat], "p_value": [p_value]})
+
+    # 使用 pingouin 进行 t-test
+    t_test_results = pg.ttest(s_data, v_data)
 
     if print_ttest:
-        print(
-            f"T-test results between 's' and 'v' conditions: t-statistic = {t_stat:.2f}, p-value = {p_value:.2e}"
-        )
+        # 输出 APA 格式的报告
+        print(t_test_results)
 
     if save_path is not None:
-        ttest_results.to_csv(
+        # 保存 t-test 结果到 CSV 文件
+        t_test_results.to_csv(
             os.path.join(save_path, "bl_ttest_results.csv"), index=False
         )
+        # 保存 boxplot 图像
         fig = plt.gcf()
         fig.set_size_inches(fig_size[0], fig_size[1])
         plt.savefig(os.path.join(save_path, "bl_v_boxplot.png"), dpi=300)
@@ -242,16 +241,14 @@ def plot_rl_alpha_boxplot(
     # Perform t-test between s and v conditions
     s_data = alpha_table[next(col for col in alpha_colnames if "s" in col)]
     v_data = alpha_table[next(col for col in alpha_colnames if "v" in col)]
-    t_stat, p_value = ttest_ind(s_data, v_data)
-    # Save t-test results to a DataFrame
-    ttest_results = pd.DataFrame({"t_statistic": [t_stat], "p_value": [p_value]})
+    # 使用 pingouin 进行 t-test
+    t_test_results = pg.ttest(s_data, v_data)
 
-    print(
-        f"T-test results between 's' and 'v' conditions: t-statistic = {t_stat:.2f}, p-value = {p_value:.2e}"
-    )
+    # 输出 APA 格式的报告
+    print(t_test_results.round(3))
 
     if save_path is not None:
-        ttest_results.to_csv(
+        t_test_results.to_csv(
             os.path.join(save_path, "rl_ttest_results.csv"), index=False
         )
 
