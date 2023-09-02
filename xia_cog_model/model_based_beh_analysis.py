@@ -194,7 +194,7 @@ def plot_bl_v_boxplot(
         )
         fig = plt.gcf()
         fig.set_size_inches(fig_size[0], fig_size[1])
-        plt.savefig(save_path, dpi=300)
+        plt.savefig(os.path.join(save_path, "bl_v_boxplot.png"), dpi=300)
 
 
 # Re-plot the boxplot for RL model's alpha with all subjects included
@@ -258,4 +258,4 @@ def plot_rl_alpha_boxplot(
 
         fig = plt.gcf()
         fig.set_size_inches(fig_size[0], fig_size[1])
-        plt.savefig(save_path, dpi=300)
+        plt.savefig(os.path.join(save_path, "rl_alpha_boxplot.png"), dpi=300)
