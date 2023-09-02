@@ -77,7 +77,7 @@ def calculate_linear_model_fits(
     filtered_data = raw_data.dropna().copy()
     df_list = []
     # 将所有需要的列都转换为浮点数类型
-    for col in pe_columns + dep_var:
+    for col in pe_columns:
         filtered_data[col] = filtered_data[col].astype("float64")
     for col in indep_var:
         filtered_data[col] = filtered_data[col].astype("category")
@@ -88,7 +88,7 @@ def calculate_linear_model_fits(
         # 创建虚拟变量
         run_dummies = pd.get_dummies(
             sub_data[interception_col[0]], prefix="inter_"
-        ).astype(int)
+        ).astype("category")
 
         # 对每个 PE 列进行操作
         for pe_col in pe_columns:
@@ -104,16 +104,14 @@ def calculate_linear_model_fits(
             # 检查观察值的数量是否大于模型中的参数数量
             if X.shape[0] <= X.shape[1]:
                 print(f"警告：观察值的数量小于或等于模型中的参数数量。被试编号：{sub_num}")
-                X.to_csv(f"X_{sub_num}.csv")
+                X.to_csv(f"/error_report/sub_{sub_num}.csv")
                 print("The error file have saved to" + getcwd())
-                continue
 
             # 检查是否存在完全共线的情况
             if np.linalg.matrix_rank(X) < X.shape[1]:
                 print("警告：存在完全共线的情况。被试编号：{sub_num}")
-                X.to_csv(f"X_{sub_num}.csv")
+                X.to_csv(f"/error_report/sub_{sub_num}.csv")
                 print("The error file have saved to" + getcwd())
-                continue
 
             # 拟合模型
             if debug:
