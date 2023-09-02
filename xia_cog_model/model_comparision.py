@@ -9,16 +9,16 @@ from scipy.special import logsumexp
 # 定义函数 calculate_linear_model_fits，用于计算线性模型的拟合度
 def calculate_linear_model_fits(
     raw_data: pd.DataFrame,  # 原始数据
-    pe_columns: List[str] = [
+    pe_columns: list[str] = [
         "bl_sr_pe",
         "bl_ab_pe",
         "rl_sr_v_pe",
         "rl_ab_v_pe",
     ],  # PE 列
-    sub_col: List[str] = ["sub_num"],  # 子列
-    dep_var: List[str] = ["rt"],  # 依赖变量
-    indep_var: List[str] = ["stim_loc_num", "resp_num", "volatility_num"],  # 独立变量
-    interception_col: List[str] = ["run_num"],  # 截距列
+    sub_col: list[str] = ["sub_num"],  # 子列
+    dep_var: list[str] = ["rt"],  # 依赖变量
+    indep_var: list[str] = ["stim_loc_num", "resp_num", "volatility_num"],  # 独立变量
+    interception_col: list[str] = ["run_num"],  # 截距列
     debug: bool = False,  # 是否打印调试信息
 ):
     """
