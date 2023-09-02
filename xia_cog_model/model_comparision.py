@@ -78,14 +78,14 @@ def calculate_linear_model_fits(
 # 定义函数 calculate_additional_fit_metrics，用于计算额外的拟合度指标
 def calculate_additional_fit_metrics(model):
     """
-    计算额外的拟合度指标。
+    Calculate additional fit metrics.
 
-    参数：
-        - model: 拟合的模型
-        - pe_col: PE 列
+    Parameters:
+        - model: Fitted model
+        - pe_col: PE column
 
-    返回：
-        - 一个包含所有拟合度指标的字典
+    Returns:
+        - A dictionary containing all fit metrics
     """
     rsquared = model.rsquared
     adj_rsquared = model.rsquared_adj
@@ -114,13 +114,13 @@ def calculate_additional_fit_metrics(model):
 # 定义函数 summary_model_comparison，用于对模型进行比较
 def summary_model_comparison(fit_metrics_df):
     """
-    对模型进行比较。
+    Compare models.
 
-    参数：
-        - fit_metrics_df: 包含拟合度指标的 DataFrame
+    Parameters:
+        - fit_metrics_df: DataFrame containing fit metrics
 
-    返回：
-        - mean_stats_pivot_df: 包含每种模型类型的平均统计量的 DataFrame
+    Returns:
+        - mean_stats_pivot_df: DataFrame containing average statistics for each model type
     """
     # 计算每种模型类型的平均统计量
     mean_stats_pivot_df = fit_metrics_df.groupby("model_type").mean()
@@ -130,14 +130,14 @@ def summary_model_comparison(fit_metrics_df):
 # 定义函数 calculate_exceedance_probability_df，用于计算超越概率
 def calculate_exceedance_probability_df(data, metrics):
     """
-    使用随机效应贝叶斯模型比较计算超越概率，并返回为 DataFrame。
+    Calculate exceedance probability using random effects Bayesian model comparison and return as a DataFrame.
 
-    参数：
-        - data: 包含每个模型和主题的度量值的 DataFrame
-        - metrics: 用于模型比较的度量列表（例如，['loglikelihood', 'AIC', 'BIC']）
+    Parameters:
+        - data: DataFrame containing the metric values of each model and topic
+        - metrics: List of metrics used for model comparison (e.g., ['loglikelihood', 'AIC', 'BIC'])
 
-    返回：
-        - exceedance_prob_df: 包含每个度量和模型的超越概率的 DataFrame
+    Returns:
+        - exceedance_prob_df: DataFrame containing the exceedance probability of each metric and model
     """
     # 初始化一个空的 DataFrame 来存储超越概率
     exceedance_prob_df = pd.DataFrame()
@@ -147,9 +147,19 @@ def calculate_exceedance_probability_df(data, metrics):
         num_models = len(data["model_type"].unique())
         num_subjects = len(data["sub_num"].unique())
 
+        # 检查观察值的数量是否大于模型中的参数数量
+        if num_subjects <= num_models:
+            print("警告：观察值的数量小于或等于模型中的参数数量。")
+            continue
+
         # 计算每个模型的平均值和方差
         mean_values = data.groupby("model_type")[metric].mean()
         var_values = data.groupby("model_type")[metric].var()
+
+        # 检查是否存在完全共线的情况
+        if var_values.min() == 0:
+            print("警告：存在完全共线的情况。")
+            continue
 
         # 初始化每个模型的 alpha（Dirichlet 参数）为 1
         alpha = np.ones(num_models)
