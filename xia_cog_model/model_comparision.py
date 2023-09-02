@@ -6,6 +6,42 @@ import statsmodels.api as sm
 from scipy.special import logsumexp
 
 
+# 定义函数 calculate_additional_fit_metrics，用于计算额外的拟合度指标
+def calculate_additional_fit_metrics(model):
+    """
+    Calculate additional fit metrics.
+
+    Parameters:
+        - model: Fitted model
+        - pe_col: PE column
+
+    Returns:
+        - A dictionary containing all fit metrics
+    """
+    rsquared = model.rsquared
+    adj_rsquared = model.rsquared_adj
+    rmse = np.sqrt(model.mse_resid)
+    mae = np.mean(np.abs(model.resid))
+    durbin_watson = sm.stats.durbin_watson(model.resid)
+    dic = 2 * model.df_model - 2 * model.llf
+    aic_min = model.aic
+    akaike_weight = np.exp(-0.5 * (model.aic - aic_min))
+
+    # 返回一个字典，包含了所有的拟合度指标
+    return {
+        "loglikelihood": model.llf,
+        "AIC": model.aic,
+        "BIC": model.bic,
+        "R-squared": rsquared,
+        "Adjusted R-squared": adj_rsquared,
+        "RMSE": rmse,
+        "MAE": mae,
+        "Durbin-Watson": durbin_watson,
+        "DIC": dic,
+        "Akaike weight": akaike_weight,
+    }
+
+
 # 定义函数 calculate_linear_model_fits，用于计算线性模型的拟合度
 def calculate_linear_model_fits(
     raw_data: pd.DataFrame,  # 原始数据
@@ -98,42 +134,6 @@ def calculate_linear_model_fits(
     fit_metrics_df = pd.concat(df_list, ignore_index=True)
 
     return fit_metrics_df
-
-
-# 定义函数 calculate_additional_fit_metrics，用于计算额外的拟合度指标
-def calculate_additional_fit_metrics(model):
-    """
-    Calculate additional fit metrics.
-
-    Parameters:
-        - model: Fitted model
-        - pe_col: PE column
-
-    Returns:
-        - A dictionary containing all fit metrics
-    """
-    rsquared = model.rsquared
-    adj_rsquared = model.rsquared_adj
-    rmse = np.sqrt(model.mse_resid)
-    mae = np.mean(np.abs(model.resid))
-    durbin_watson = sm.stats.durbin_watson(model.resid)
-    dic = 2 * model.df_model - 2 * model.llf
-    aic_min = model.aic
-    akaike_weight = np.exp(-0.5 * (model.aic - aic_min))
-
-    # 返回一个字典，包含了所有的拟合度指标
-    return {
-        "loglikelihood": model.llf,
-        "AIC": model.aic,
-        "BIC": model.bic,
-        "R-squared": rsquared,
-        "Adjusted R-squared": adj_rsquared,
-        "RMSE": rmse,
-        "MAE": mae,
-        "Durbin-Watson": durbin_watson,
-        "DIC": dic,
-        "Akaike weight": akaike_weight,
-    }
 
 
 # 定义函数 summary_model_comparison，用于对模型进行比较
