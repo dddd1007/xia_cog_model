@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import os
-import pandas as pd
 import seaborn as sns
 import numpy as np
 import pingouin as pg
+
+plt.rcParams["font.sans-serif"] = ["SimHei"]  # 用来正常显示中文标签
 
 
 def model_overlap_plot(
@@ -18,6 +19,9 @@ def model_overlap_plot(
     title_fontsize=20,
     tick_fontsize=20,
 ):
+    # Print the red text "===== Checking the consistency of the model capturing the experimental design ====="
+    print("\033[31m===== 检测模型捕获实验设计的一致性 =====\033[0m")
+
     num_subs = len(sub_nums)  # Number of subjects
     num_models = len(assign_name)  # Number of models
 
@@ -134,6 +138,9 @@ def model_overlap_plot(
     if show_plot:
         plt.show()
 
+    # Print the green text "========== Analysis completed =========="
+    print("\033[32m========== 分析结束 ==========\033[0m")
+
 
 # Update the function to include t-test for differences between volatility conditions
 def plot_bl_v_boxplot(
@@ -146,6 +153,7 @@ def plot_bl_v_boxplot(
     fig_size=(10, 6),
     print_ttest=True,
 ):
+    print("\033[31m===== 贝叶斯模型箱线图绘制 =====\033[0m")
     # Convert volatility values to lowercase for consistency
     raw_data[volatility_colname] = raw_data[volatility_colname].str.lower()
 
@@ -194,6 +202,8 @@ def plot_bl_v_boxplot(
         fig.set_size_inches(fig_size[0], fig_size[1])
         plt.savefig(os.path.join(save_path, "bl_v_boxplot.png"), dpi=300)
 
+    print("\033[32m========== 分析结束 ==========\033[0m")
+
 
 # Re-plot the boxplot for RL model's alpha with all subjects included
 def plot_rl_alpha_boxplot(
@@ -204,6 +214,7 @@ def plot_rl_alpha_boxplot(
     save_path=None,
     fig_size=(10, 6),
 ):
+    print("\033[31m===== 强化学习模型箱线图绘制 =====\033[0m")
     # Check if the required columns exist in the dataframe
     for col in [subject_colname] + alpha_colnames:
         if col not in alpha_table.columns:
@@ -255,3 +266,5 @@ def plot_rl_alpha_boxplot(
         fig = plt.gcf()
         fig.set_size_inches(fig_size[0], fig_size[1])
         plt.savefig(os.path.join(save_path, "rl_alpha_boxplot.png"), dpi=300)
+
+    print("\033[32m========== 分析结束 ==========\033[0m")

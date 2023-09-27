@@ -236,13 +236,15 @@ def summary_model_beta(model_selection_results, save_path, figure_size=(10, 5)):
     # Perform one-sample t-test for each column and save the results to a csv file
     t_test_results = {}
     for col in beta_df.columns:
+        # Perform one-sample t-test and calculate Cohen's d for each column
         t_stat, p_val = stats.ttest_1samp(beta_df[col], 0)
-        t_test_results[col] = [t_stat, p_val]
+        cohen_d = np.mean(beta_df[col]) / np.std(beta_df[col])
+        t_test_results[col] = [t_stat, p_val, cohen_d]
 
     t_test_df = pd.DataFrame.from_dict(
-        t_test_results, orient="index", columns=["T-statistic", "P-value"]
+        t_test_results, orient="index", columns=["T-statistic", "P-value", "Cohen's d"]
     )
-    t_test_df.to_csv(os.path.join(save_path, "t_test_results.csv"))
+    t_test_df.to_csv(os.path.join(save_path, "model_t_test_results.csv"))
 
     colors = ["#e87e72", "#56bcc2"]  # Define colors for the boxplot
     beta_df_melt = beta_df.drop(columns=["sub_num"]).melt(
